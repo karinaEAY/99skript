@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script RB</title>
+    <!-- Підключення Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Підключення іконок (Heroicons) --><script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Основний фон та шрифт */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a2e; /* Темно-синій фон, як у відео */
+            color: #ffffff;
+        }
+        
+        /* Стилізація модальних вікон */
+        .modal-content {
+            background-color: #2a2a4e; /* Темніший фон для модалок */
+            border: 1px solid #4a4a7e; /* Фіолетова рамка */
+            position: relative; /* Потрібно для z-index */
+            z-index: 51; /* Щоб модалки були над оверлеєм */
+        }
+
+        /* Стилізація поля вводу */
+        .nickname-input {
+            background-color: #1a1a2e;
+            border: 1px solid #4a4a7e;
+            color: white;
+            caret-color: white; /* Колір курсора */
+        }
+        .nickname-input::placeholder {
+            color: #8c8ca1;
+        }
+        .nickname-input:focus {
+            outline: none;
+            border-color: #7a7aff;
+            box-shadow: 0 0 0 3px rgba(122, 122, 255, 0.3);
+        }
+
+        /* Стилізація скролбару (для Fіrefox) */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #4a4a7e #1a1a2e;
+        }
+
+        /* Стилізація скролбару (для Chrome, Safari, Edge) */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1a2e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #4a4a7e;
+            border-radius: 20px;
+            border: 3px solid #1a1a2e;
+        }
+
+        /* Анімація обертання для зображення Roblox */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .roblox-spinner {
+            animation: spin 1s linear infinite; /* 1 секунда, лінійна, нескінченно */
+        }
+
+        /* Анімація неонового сяйва для кнопок */
+        /* Базовий стиль для неонових кнопок */
+        .neon-button-base {
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease-in-out;
+        }
+        .neon-button-base:hover {
+             transform: translateY(-2px);
+        }
+
+        /* Синя підсвітка (для "Get Script") */
+        .neon-blue {
+            box-shadow: 0 0 5px #03e9f4,
+                        0 0 10px #03e9f4,
+                        0 0 15px #03e9f4,
+                        0 0 20px #03e9f4;
+        }
+        .neon-blue:hover {
+            box-shadow: 0 0 10px #03e9f4,
+                        0 0 20px #03e9f4,
+                        0 0 30px #03e9f4,
+                        0 0 40px #03e9f4;
+        }
+
+        /* Зелена підсвітка (для "OK") */
+        .neon-green {
+            box-shadow: 0 0 5px #00ff7f,
+                        0 0 10px #00ff7f,
+                        0 0 15px #00ff7f,
+                        0 0 20px #00ff7f;
+        }
+        .neon-green:hover {
+            box-shadow: 0 0 10px #00ff7f,
+                        0 0 20px #00ff7f,
+                        0 0 30px #00ff7f,
+                        0 0 40px #00ff7f;
+        }
+
+        /* Рожева підсвітка (для "Got It") */
+        .neon-pink {
+            box-shadow: 0 0 5px #f54291,
+                        0 0 10px #f54291,
+                        0 0 15px #f54291,
+                        0 0 20px #f54291;
+        }
+        .neon-pink:hover {
+            box-shadow: 0 0 10px #f54291,
+                        0 0 20px #f54291,
+                        0 0 30px #f54291,
+                        0 0 40px #f54291;
+        }
+
+        /* Анімація тексту "Success!" */
+        @keyframes neon-glow {
+            0%, 100% {
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #03e9f4, 0 0 30px #03e9f4, 0 0 40px #03e9f4, 0 0 50px #03e9f4, 0 0 60px #03e9f4;
+            }
+            50% {
+                text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #03e9f4, 0 0 40px #03e9f4, 0 0 50px #03e9f4, 0 0 60px #03e9f4, 0 0 70px #03e9f4;
+            }
+        }
+        .success-glow {
+            animation: neon-glow 1.5s ease-in-out infinite alternate;
+        }
+
+        /* Стилі для неонових салютів */
+        .fireworks-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1000;
+            display: none; /* Приховано за замовчуванням */
+        }
+
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background-color: currentColor; /* Колір буде задаватися JS */
+            border-radius: 50%;
+            opacity: 0;
+            animation: firework-burst 0.8s ease-out forwards;
+        }
+
+        @keyframes firework-burst {
+            0% {
+                transform: scale(0.2) translate(0, 0);
+                opacity: 1;
+                filter: blur(0px);
+            }
+            100% {
+                transform: scale(1.5) translate(var(--dx), var(--dy));
+                opacity: 0;
+                filter: blur(3px);
+            }
+        }
+
+        .firework-origin {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: firework-flash 0.5s ease-out forwards;
+        }
+
+        @keyframes firework-flash {
+            0% { transform: scale(0); opacity: 1; }
+            50% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="flex justify-center min-h-screen p-4">
+
+    <!-- Головний контейнер додатку --><div class="w-full max-w-md mx-auto">
+        
+        <!-- Хедер --><header class="flex justify-between items-center py-4">
+            <h1 class="text-3xl font-bold text-white">Script RB</h1>
+            <nav class="flex space-x-5 text-gray-300">
+                <a href="#" class="hover:text-white">Home</a>
+                <a href="#" class="hover:text-white">Expoits</a>
+                <a href="#" class="hover:text-white">Tools</a>
+            </nav>
+        </header>
+
+        <!-- Пошук --><div class="relative my-4">
+            <input 
+                type="text" 
+                placeholder="Search" 
+                class="w-full bg-[#2a2a4e] border border-[#4a4a7e] text-white rounded-lg py-3 pl-4 pr-10 focus:outline-none focus:border-[#7a7aff] transition">
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </span>
+        </div>
+
+        <!-- Основний контент --><main>
+            <!-- Картка "Popular Script" --><section class="my-6">
+                <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">POPULAR SCRIPT</h2>
+                <div class="bg-[#2a2a4e] border border-[#4a4a7e] rounded-xl shadow-lg overflow-hidden">
+                    <img src="https://cdn.gamestatic.net/files/editor_uploads/NikolayD/2025/2025-1/skachat-delta-executor-roblox-99-nights-in-the-forest_1.jpg" 
+                         alt="99 Nights in the Forest" 
+                         class="w-full h-40 object-cover"
+                         onerror="this.src='https://placehold.co/600x300/1a1a2e/ffffff?text=Image+Error'">
+                    <div class="p-5">
+                        <h3 class="text-2xl font-bold text-white mb-2">99 Nights in the Forest</h3>
+                        <p class="text-gray-300 mb-4">
+                            A great script for 99 Nights in the Forest with features like Kill Aura, Auto Farm, Auto Fill Hunger, and much more.
+                        </p>
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 get-script-btn neon-button-base neon-blue">
+                            Get Script
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- НОВА КАРТКА 1: Steal a Brainrot --><section class="my-6">
+                <div class="bg-[#2a2a4e] border border-[#4a4a7e] rounded-xl shadow-lg overflow-hidden">
+                    <img src="https://cdn.mos.cms.futurecdn.net/Xcy6kR368PbdYxDV5aXjkM-1200-80.jpg" 
+                         alt="Steal a Brainrot" 
+                         class="w-full h-40 object-cover"
+                         onerror="this.src='https://placehold.co/600x300/1a1a2e/ffffff?text=Image+Error'">
+                    <div class="p-5">
+                        <h3 class="text-2xl font-bold text-white mb-2">steal a brainrot</h3>
+                        <p class="text-gray-300 mb-4">
+                            A new script for Steal a Brainrot. Get the best features now.
+                        </p>
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 get-script-btn neon-button-base neon-blue">
+                            Get Script
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- НОВА КАРТКА 2: Grow a Garden --><section class="my-6">
+                <div class="bg-[#2a2a4e] border border-[#4a4a7e] rounded-xl shadow-lg overflow-hidden">
+                    <img src="https://escorenews.com/media/news/n69231.jpeg" 
+                         alt="Grow a Garden" 
+                         class="w-full h-40 object-cover"
+                         onerror="this.src='https://placehold.co/600x300/1a1a2e/ffffff?text=Image+Error'">
+                    <div class="p-5">
+                        <h3 class="text-2xl font-bold text-white mb-2">grow a garden</h3>
+                        <p class="text-gray-300 mb-4">
+                            best seeds to plant, auto plant, auto buy, auto sell, auto collect, infinite seeds, tools to use, and ways to grow your farm faster
+                        </p>
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 get-script-btn neon-button-base neon-blue">
+                            Get Script
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+    </div>
+
+    <!-- Модальні вікна (поверх всього) --><div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-70 hidden flex items-center justify-center p-4" style="z-index: 50;">
+
+        <!-- 1. Модальне вікно "Connect" --><div id="connect-modal" class="modal-content w-full max-w-sm rounded-lg p-6 text-center hidden">
+            <h2 class="text-xl font-bold text-white mb-2">Connect The Script</h2>
+            <p class="text-gray-300 mb-4">Enter your nickname to connect the script.</p>
+            <input 
+                id="nickname-input"
+                type="text" 
+                placeholder="Enter nickname"
+                class="nickname-input w-full rounded-lg p-3 text-center mb-4">
+            <button id="ok-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 neon-button-base neon-green">
+                OK
+            </button>
+        </div>
+
+        <!-- 2. Модальне вікно "Loading" --><div id="loading-modal" class="modal-content w-full max-w-sm rounded-lg p-8 text-center hidden">
+            <img src="https://i.ibb.co/fdTcCV1g/CITYPNG-COM-HD-Roblox-White-Symbol-Sign-Icon-Logo-PNG-2000x2000.png" 
+                 alt="Roblox Loading" 
+                 class="roblox-spinner mx-auto h-16 w-16">
+        </div>
+
+        <!-- 3. Модальне вікно "Success" --><div id="success-modal" class="modal-content w-full max-w-sm rounded-lg p-6 text-center hidden">
+            <h2 class="text-5xl font-bold text-white mb-3 success-glow uppercase">SUCCESS!</h2>
+            <p class="text-gray-300 mb-5">The script has been successfully connected to your account</p>
+            <button id="got-it-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 neon-button-base neon-pink">
+                Got It
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Контейнер для салютів --><div id="fireworks-container" class="fireworks-container"></div>
+
+    <script>
+        // Отримання елементів DOM
+        const getScriptBtns = document.querySelectorAll('.get-script-btn');
+        const okBtn = document.getElementById('ok-btn');
+        const gotItBtn = document.getElementById('got-it-btn');
+        const nicknameInput = document.getElementById('nickname-input');
+
+        const overlay = document.getElementById('modal-overlay');
+        const connectModal = document.getElementById('connect-modal');
+        const loadingModal = document.getElementById('loading-modal');
+        const successModal = document.getElementById('success-modal');
+        const fireworksContainer = document.getElementById('fireworks-container');
+
+        // Функція для запуску неонових салютів
+        function launchFireworks() {
+            fireworksContainer.classList.remove('hidden'); // Показати контейнер
+            fireworksContainer.style.display = 'block'; // Переконатися, що він видимий
+
+            const colors = ['#03e9f4', '#f54291', '#00ff7f', '#ff005c', '#8a2be2', '#fde13b'];
+            const numFireworks = 15; // Кількість спалахів салютів
+            const particlesPerFirework = 30; // Кількість частинок на один салют
+
+            for (let i = 0; i < numFireworks; i++) {
+                setTimeout(() => {
+                    const fireworkColor = colors[Math.floor(Math.random() * colors.length)];
+                    const startX = Math.random() * window.innerWidth;
+                    const startY = Math.random() * window.innerHeight * 0.7 + window.innerHeight * 0.1; // Зверху 10% до 80% висоти
+
+                    // Створення точки спалаху
+                    const origin = document.createElement('div');
+                    origin.classList.add('firework-origin');
+                    origin.style.left = `${startX}px`;
+                    origin.style.top = `${startY}px`;
+                    origin.style.width = origin.style.height = `${Math.random() * 20 + 10}px`; // Випадковий розмір
+                    origin.style.backgroundColor = fireworkColor;
+                    fireworksContainer.appendChild(origin);
+
+                    // Створення частинок салюту
+                    for (let j = 0; j < particlesPerFirework; j++) {
+                        const particle = document.createElement('div');
+                        particle.classList.add('firework');
+                        particle.style.backgroundColor = fireworkColor;
+                        particle.style.left = `${startX}px`;
+                        particle.style.top = `${startY}px`;
+
+                        const angle = Math.random() * Math.PI * 2;
+                        const distance = Math.random() * 80 + 20; // Радіус розльоту
+                        
+                        particle.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
+                        particle.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
+                        particle.style.animationDelay = `${Math.random() * 0.1}s`; // Невеликий випадковий delay
+                        fireworksContainer.appendChild(particle);
+
+                        particle.addEventListener('animationend', () => {
+                            particle.remove();
+                        });
+                    }
+                    origin.addEventListener('animationend', () => {
+                        origin.remove();
+                    });
+
+                }, i * 300); // Запускати салюти кожні 300мс
+            }
+
+            // Приховуємо контейнер салютів після завершення циклу
+            setTimeout(() => {
+                fireworksContainer.classList.add('hidden');
+                fireworksContainer.style.display = 'none';
+                fireworksContainer.innerHTML = ''; // Очистити елементи
+            }, numFireworks * 300 + 1000); // Загальний час анімації останнього салюту + затримка
+        }
+
+
+        // Подія: Клік на "Get Script" (тепер для всіх кнопок з класом .get-script-btn)
+        getScriptBtns.forEach(btn => {
+            btn.addEventListener('click', (event) => { // Додано event
+                const clickedBtn = event.currentTarget; // Отримуємо саму кнопку
+                const parentSection = clickedBtn.closest('section'); // Знаходимо батьківську картку
+
+                // 1. Негайно прибираємо клас підсвітки
+                clickedBtn.classList.remove('neon-blue'); 
+                
+                // 2. Негайно ховаємо всю картку
+                if (parentSection) {
+                    parentSection.classList.add('hidden'); 
+                }
+                
+                // 3. Відкриваємо модальне вікно
+                overlay.classList.remove('hidden');
+                connectModal.classList.remove('hidden');
+                nicknameInput.value = '';
+                nicknameInput.focus();
+            });
+        });
+
+        // Подія: Клік на "OK"
+        okBtn.addEventListener('click', () => {
+            connectModal.classList.add('hidden');
+            loadingModal.classList.remove('hidden');
+
+            setTimeout(() => {
+                loadingModal.classList.add('hidden');
+                successModal.classList.remove('hidden');
+                launchFireworks(); // Запускаємо салюти після успіху
+            }, 1500); // 1.5 секунди затримки
+        });
+
+        // Подія: Клік на "Got It"
+        gotItBtn.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            successModal.classList.add('hidden');
+            
+            // Приховати салюти, якщо вони ще є
+            fireworksContainer.classList.add('hidden');
+            fireworksContainer.style.display = 'none';
+            fireworksContainer.innerHTML = ''; // Очистити елементи салютів
+            
+            // БІЛЬШЕ НЕ ПОКАЗУЄМО КАРТКИ ПІСЛЯ УСПІХУ
+            // (Видалено цикл, який повертав .hidden)
+        });
+
+        // Дозволяє закривати вікна по кліку на темний фон (СКАСУВАННЯ)
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.classList.add('hidden');
+                connectModal.classList.add('hidden');
+                loadingModal.classList.add('hidden');
+                successModal.classList.add('hidden');
+                
+                // Приховати салюти, якщо вони ще є
+                fireworksContainer.classList.add('hidden');
+                fireworksContainer.style.display = 'none';
+                fireworksContainer.innerHTML = ''; // Очистити елементи салютів
+
+                // Показати всі картки, якщо вони були приховані
+                document.querySelectorAll('main section.hidden').forEach(section => {
+                    section.classList.remove('hidden');
+                    // Повертаємо підсвітку кнопці
+                    const btn = section.querySelector('.get-script-btn');
+                    if (btn) {
+                        btn.classList.add('neon-blue');
+                    }
+                });
+            }
+        });
+
+        // Дозволяє вводити нікнейм натисканням Enter
+        nicknameInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                okBtn.click();
+            }
+        });
+
+    </script>
+</body>
+</html>
+
+
+
+
+
