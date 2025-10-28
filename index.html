@@ -225,7 +225,7 @@
                             A great script for 99 Nights in the Forest with features like Kill Aura, Auto Farm, Auto Fill Hunger, and much more.
                         </p>
                         <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 get-script-btn neon-button-base neon-blue">
-                            Get Script
+                            Download Script
                         </button>
                     </div>
                 </div>
@@ -243,7 +243,7 @@
                             A new script for Steal a Brainrot. Get the best features now.
                         </p>
                         <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 get-script-btn neon-button-base neon-blue">
-                            Get Script
+                            Download Script
                         </button>
                     </div>
                 </div>
@@ -261,7 +261,7 @@
                             best seeds to plant, auto plant, auto buy, auto sell, auto collect, infinite seeds, tools to use, and ways to grow your farm faster
                         </p>
                         <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 get-script-btn neon-button-base neon-blue">
-                            Get Script
+                            Download Script
                         </button>
                     </div>
                 </div>
@@ -380,15 +380,17 @@
         getScriptBtns.forEach(btn => {
             btn.addEventListener('click', (event) => { // Додано event
                 const clickedBtn = event.currentTarget; // Отримуємо саму кнопку
-                const parentSection = clickedBtn.closest('section'); // Знаходимо батьківську картку
+                // const parentSection = clickedBtn.closest('section'); // Знаходимо батьківську картку
 
                 // 1. Негайно прибираємо клас підсвітки
                 clickedBtn.classList.remove('neon-blue'); 
                 
-                // 2. Негайно ховаємо всю картку
+                // 2. БІЛЬШЕ НЕ ХОВАЄМО КАРТКУ
+                /*
                 if (parentSection) {
                     parentSection.classList.add('hidden'); 
                 }
+                */
                 
                 // 3. Відкриваємо модальне вікно
                 overlay.classList.remove('hidden');
@@ -437,14 +439,9 @@
                 fireworksContainer.style.display = 'none';
                 fireworksContainer.innerHTML = ''; // Очистити елементи салютів
 
-                // Показати всі картки, якщо вони були приховані
-                document.querySelectorAll('main section.hidden').forEach(section => {
-                    section.classList.remove('hidden');
-                    // Повертаємо підсвітку кнопці
-                    const btn = section.querySelector('.get-script-btn');
-                    if (btn) {
-                        btn.classList.add('neon-blue');
-                    }
+                // Повертаємо підсвітку всім кнопкам "Download Script"
+                document.querySelectorAll('main section .get-script-btn').forEach(btn => {
+                    btn.classList.add('neon-blue');
                 });
             }
         });
@@ -459,6 +456,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
